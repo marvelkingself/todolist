@@ -11,6 +11,8 @@ export default class TodoCreate extends Component {
         this.state = {
             foamvalidate: true,
             foamUpdate: false,
+            foamSearch:true,
+            filterData:[],
             sdata: [
                 {
                     "Task": "Buy Vegetable",
@@ -38,9 +40,13 @@ export default class TodoCreate extends Component {
         this.handleclicks = this.handleclicks.bind(this)
         this.handleCheckboxClick = this.handleCheckboxClick.bind(this)
         this.handleDelete = this.handleDelete.bind(this)
-        // this.handleUpdates = this.handleUpdates.bind(this)
+        this.handleSearch= this.handleSearch.bind(this)
         this.handleValue=this.handleValue.bind(this)
     }
+    
+        
+  
+    
     // for add data
     handleclicks(task) {
         console.log(task);
@@ -49,10 +55,10 @@ export default class TodoCreate extends Component {
         }
         else {
             this.setState({
-                sdata: [...this.state.sdata, { Task: task, Status: false, }]
+                sdata: [...this.state.sdata, { Task: task, Status: false }]
 
             })
-            this.setState({ foamvalidate: true })
+            this.setState({ foamvalidate: true,foamSearch:true })
         }
     }
     // for Chnanging task status
@@ -84,33 +90,31 @@ export default class TodoCreate extends Component {
     // for sending props 
     handleUpdate(index) {
         const updatedData = {
-            "Task": this.state.sdata[index].Task,
+            "Task": true,
             "Index": index
         }
         this.setState({ foamUpdate: updatedData })
         console.log(this.state.foamUpdate)
     }
-
-    
-    
-
     //  for recive state and update state
-    // handleUpdates(updatedData) {
-
-    //     if (updatedData.Task.trim() === "") {
-    //         this.setState({ foamvalidate: false })
-    //     }
-    //     else {
-    //         const updated = [...this.state.sdata];
-    //         updated[updatedData.Index] = {
-    //             "Task": updatedData.Task,
-    //             "Status": this.state.sdata[updatedData.Index].Status
-    //         };
-
-    //         this.setState({ foamUpdate: "", sdata: updated });
-    //         this.setState({ foamvalidate: true })
-    //     }
-    // }
+    handleSearch(task) {
+        if(task.trim()===""){
+           this.setState({foamSearch:true})
+           console.log("blanck");
+        }else{
+         const filterDatas= this.state.sdata.filter((data)=>{
+            if (data.Task.toLowerCase().indexOf(task.toLowerCase()) === -1) {
+                return false;
+              }
+            else{
+                return true
+            }
+        
+        }) 
+        this.setState({filterData:filterDatas,foamSearch:false})
+           console.log(filterDatas);
+    }
+}
 
     handleSubmit = (event) => {
         
@@ -118,16 +122,21 @@ export default class TodoCreate extends Component {
         this.setState({ foamUpdate: "", sdata: this.state.sdata})
 
     }
+    
+   
 
-
+    
 
     render() {
+        const dataToDisply=this.state.foamSearch ? this.state.sdata : this.state.filterData
+       
+        
         return (
-            <div className='container-fluid'>
+            <div className='container-fluid' onLoad={this.handledata}>
                 <div className='d-flex  flex-column align-items-center'>
-                    <Addtodo onTask={this.handleclicks} onTaskUpdate={this.handleUpdates} validate={this.state.foamvalidate} updateFoam={this.state.foamUpdate} />
+                    <Addtodo onTask={this.handleclicks} onSearch={this.handleSearch} validate={this.state.foamvalidate} updateFoam={this.state.foamUpdate} data={this.state.sdata} />
                     <h3> Task List:-</h3>
-                    {this.state.sdata.map((data, i) => {
+                    {dataToDisply.length>0?dataToDisply.map((data, i) => {
                         return (
                             <div className='width-col border col-8 d-flex justify-content-between align-items-center p-3 border-dark bg-light text-dark  rounded bg-opacity-75 ' key={i}>
                                 <div className="checkbox-wrapper-15 col-6 ">
@@ -166,7 +175,7 @@ export default class TodoCreate extends Component {
                                 </h6>
                             </div>
                         );
-                    })}
+                    }):<div className='width-col border col-8 d-flex justify-content-center align-items-center p-3 border-dark bg-light text-dark  rounded bg-opacity-75  ' ><h1>No Data Found</h1></div>}
                 </div>
             </div>
         );
