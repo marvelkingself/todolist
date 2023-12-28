@@ -66,13 +66,15 @@ export default class TodoCreate extends Component {
     handleDelete(index) {
         if (this.state.sdata[index].Status) {
             const updatedData = [...this.state.sdata];
-            updatedData.splice(index, 1);
-            this.setState({ sdata: updatedData });
+            const findinfex= updatedData.findIndex((find)=>find.id===index)
+            updatedData.splice(findinfex, 1);
+            this.setState({ sdata: updatedData,filterData: updatedData });
         }
         else if (window.confirm("Do you really want to Delete Incomplete Task?")) {
             const updatedData = [...this.state.sdata];
-            updatedData.splice(index, 1);
-            this.setState({ sdata: updatedData });
+            const findinfex= updatedData.findIndex((find)=>find.id===index)
+            updatedData.splice(findinfex, 1);
+            this.setState({ sdata: updatedData,filterData: updatedData });
         }
 
     }
