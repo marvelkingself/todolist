@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import TodoCreate from './Components/TodoCreate';
+import Header from './Components/Header';
 
 
 export default class App extends Component {
@@ -17,7 +18,7 @@ export default class App extends Component {
             
           }}
         >
-          <h2 className="text-center fw-bold py-1 fs-1 text-light bg-secondary  bg-opacity-75" >To Do List</h2>
+          <Header/>
           <TodoCreate></TodoCreate>
         </div>
     

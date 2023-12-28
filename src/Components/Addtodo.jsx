@@ -5,11 +5,12 @@ export default class Addtodo extends Component {
         super(props);
         this.state = {
             task: "",
-            search: [],
+            search: false,
         };
         this.handleValue = this.handleValue.bind(this)
         this.handleclick = this.handleclick.bind(this)
         this.handleSearch = this.handleSearch.bind(this)
+        this.handleDelete = this.handleDelete.bind(this)
 
 
     }
@@ -18,11 +19,17 @@ export default class Addtodo extends Component {
     handleValue(e) {
 
         this.setState({ task: e.target.value });
+        if(this.state.search){
+            this.props.onSearch(e.target.value);
+        }
 
     }
     // this function work when user add task 
     handleclick() {
-        if(this.props.data.findIndex((d)=>d.Task.toLowerCase()===this.state.task.toLowerCase())!==-1){
+        if(this.state.search){
+            alert("First off the Search mode ")
+        }
+        else if(this.props.data.findIndex((d)=>d.Task.toLowerCase()===this.state.task.toLowerCase())!==-1){
             alert("You already Add this task")
         }else{
             console.log(this.props.validate)
@@ -33,7 +40,14 @@ export default class Addtodo extends Component {
     }
     // when user update task 
     handleSearch() {
-        this.props.onSearch(this.state.task);
+        const status = !this.state.search
+        this.props.onSearchSet(status)
+        this.setState({ task: "" })
+        this.setState({search:status})
+        
+    }
+    handleDelete(){
+        this.props.onDelete()
     }
 
     render() {
@@ -42,7 +56,7 @@ export default class Addtodo extends Component {
             <>
 
                 <div className='col-8 mt-2'>
-                    <label className="form-label fs-3"> Add Other Task:-</label>
+                    <label className="form-label fs-3">{this.state.search? "Search Task:-":"Add Other Task:-"}</label>
                     <input
                         type="text"
                         value={this.state.task}
@@ -61,9 +75,15 @@ export default class Addtodo extends Component {
                         </button>
                         <button
                             type="button"
-                            className="btn btn-secondary btn-rounded mt-3 ms-3"
+                            className={`btn ${this.state.search? "btn-danger":"btn-secondary"} btn-secondary  btn-rounded mt-3 ms-3`}
                             onClick={this.handleSearch}>
                             Search
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-secondary btn-rounded mt-3 ms-3"
+                            onClick={this.handleDelete}>
+                            Delete All
                         </button>
                     </div>
 

@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import Addtodo from './Addtodo';
 import { AiFillDelete } from "react-icons/ai";
 import { FaEdit } from "react-icons/fa";
+import jsonData from '../Data/Data';
 
 export default class TodoCreate extends Component {
     constructor() {
@@ -11,42 +12,21 @@ export default class TodoCreate extends Component {
         this.state = {
             foamvalidate: true,
             foamUpdate: false,
-            foamSearch:true,
-            filterData:[],
-            sdata: [
-                {
-                    "Task": "Buy Vegetable",
-                    "Status": false,
-                },
-                {
-                    "Task": "Go to Gym",
-                    "Status": false,
-                },
-                {
-                    "Task": "Do Coding",
-                    "Status": false,
-                },
-                {
-                    "Task": "Do Anything",
-                    "Status": false,
-                },
-                {
-                    "Task": "Do Something",
-                    "Status": false,
-                },
-            ],
+            foamSearch: false,
+            filterData: [],
+            sdata: jsonData,
         };
         this.handleUpdate = this.handleUpdate.bind(this)
         this.handleclicks = this.handleclicks.bind(this)
         this.handleCheckboxClick = this.handleCheckboxClick.bind(this)
         this.handleDelete = this.handleDelete.bind(this)
-        this.handleSearch= this.handleSearch.bind(this)
-        this.handleValue=this.handleValue.bind(this)
+        this.handleSearch = this.handleSearch.bind(this)
+        this.handleValue = this.handleValue.bind(this)
     }
-    
-        
-  
-    
+
+
+
+
     // for add data
     handleclicks(task) {
         console.log(task);
@@ -54,11 +34,12 @@ export default class TodoCreate extends Component {
             this.setState({ foamvalidate: false })
         }
         else {
+            const customID=this.state.sdata.length
             this.setState({
-                sdata: [...this.state.sdata, { Task: task, Status: false }]
+                sdata: [...this.state.sdata, { Task: task, Status: false ,id:customID }]
 
             })
-            this.setState({ foamvalidate: true,foamSearch:true })
+            this.setState({ foamvalidate: true })
         }
     }
     // for Chnanging task status
@@ -67,10 +48,18 @@ export default class TodoCreate extends Component {
         updatedData[index].Status = !updatedData[index].Status;
         this.setState({ sdata: updatedData });
     };
-    handleValue(e,i) {
-        const updatedData = [...this.state.sdata];
-        updatedData[i].Task = e.target.value;
-        this.setState({ sdata: updatedData });
+    handleValue(e, i) {
+        if (this.state.sdata.findIndex((d) => d.Task.toLowerCase() === e.target.value.toLowerCase()) !== -1) {
+            e.preventDefault();
+            alert("You already Add this task")
+        }
+
+        else {
+            const updatedData = [...this.state.sdata];
+            updatedData[i].Task = e.target.value;
+            this.setState({ sdata: updatedData })
+        }
+
 
     }
     //for delete Task
@@ -97,46 +86,75 @@ export default class TodoCreate extends Component {
         console.log(this.state.foamUpdate)
     }
     //  for recive state and update state
+
     handleSearch(task) {
-        if(task.trim()===""){
-           this.setState({foamSearch:true})
-           console.log("blanck");
-        }else{
-         const filterDatas= this.state.sdata.filter((data)=>{
-            if (data.Task.toLowerCase().indexOf(task.toLowerCase()) === -1) {
+        // if (task.trim() === "") {
+        //     this.setState({ filterData: this.state.sdata })
+
+        // } else {
+        const filterDatas = this.state.sdata.filter((data) => {
+
+            if (data.Task.toLowerCase().indexOf(task.toLowerCase().trim()) === -1) {
                 return false;
-              }
-            else{
+            }
+            else {
                 return true
             }
-        
-        }) 
-        this.setState({filterData:filterDatas,foamSearch:false})
-           console.log(filterDatas);
+
+        })
+        this.setState({ filterData: filterDatas })
+        console.log(filterDatas);
+        // }
     }
-}
+    handleSearchSet = (sets) => {
+        console.log(sets);
+        this.setState({ filterData: this.state.sdata})
+        this.setState({ foamSearch: sets })
+    }
 
     handleSubmit = (event) => {
-        
+
+
         event.preventDefault();
-        this.setState({ foamUpdate: "", sdata: this.state.sdata})
+        this.setState({ foamUpdate: "", sdata: this.state.sdata })
 
     }
-    
-   
+    handleDeleteCheck = () => {
+        const Delete = this.state.sdata.filter((data) => {
+            if (data.Status === true) {
+                return false;
+            }
+            else {
+                return true
+            }
+        })
+        this.setState({sdata:Delete})
+    }
 
-    
+
+
+
 
     render() {
-        const dataToDisply=this.state.foamSearch ? this.state.sdata : this.state.filterData
-       
-        
+
+        const dataToDisply = this.state.foamSearch? this.state.filterData : this.state.sdata
+        console.log(this.state.foamSearch, "h1");
+
+
         return (
             <div className='container-fluid' onLoad={this.handledata}>
                 <div className='d-flex  flex-column align-items-center'>
-                    <Addtodo onTask={this.handleclicks} onSearch={this.handleSearch} validate={this.state.foamvalidate} updateFoam={this.state.foamUpdate} data={this.state.sdata} />
+                    <Addtodo
+                        onTask={this.handleclicks}
+                        onSearch={this.handleSearch}
+                        onSearchSet={this.handleSearchSet}
+                        validate={this.state.foamvalidate}
+                        data={this.state.sdata}
+                        onDelete={this.handleDeleteCheck}
+                    />
+
                     <h3> Task List:-</h3>
-                    {dataToDisply.length>0?dataToDisply.map((data, i) => {
+                    {dataToDisply.length > 0 ? dataToDisply.map((data, i) => {
                         return (
                             <div className='width-col border col-8 d-flex justify-content-between align-items-center p-3 border-dark bg-light text-dark  rounded bg-opacity-75 ' key={i}>
                                 <div className="checkbox-wrapper-15 col-6 ">
@@ -145,7 +163,7 @@ export default class TodoCreate extends Component {
                                         id={`cbx-${i}`}
                                         type="checkbox"
                                         style={{ display: 'none' }}
-                                        onChange={() => this.handleCheckboxClick(i)}
+                                        onChange={() => this.handleCheckboxClick(data.id)}
                                         checked={data.Status}
                                     />
                                     <label className="cbx d-flex align-items-center p-1 " htmlFor={`cbx-${i}`}>
@@ -155,10 +173,11 @@ export default class TodoCreate extends Component {
                                             </svg>
                                         </span>
                                         <span className='fs-5 ps-1'>Task Name:-</span>
-                                        {(this.state.foamUpdate.Task && this.state.foamUpdate.Index === i) ?
+
+                                        {(this.state.foamUpdate.Task && this.state.foamUpdate.Index === data.id) ?
                                             <form className='' onSubmit={this.handleSubmit} >
-                                                <input className='fs-5 bg-opacity-25 border-white rounded bg-light ms-1 ' type='text' value={this.state.sdata[i].Task} 
-                                                onChange={(e)=>{this.handleValue(e,i)}}>
+                                                <input className='fs-5 bg-opacity-25 border-white rounded bg-light ms-1 ' type='text' value={this.state.sdata[data.id].Task}
+                                                    onChange={(e) => { this.handleValue(e,data.id) }}>
 
                                                 </input>
                                             </form>
@@ -166,16 +185,16 @@ export default class TodoCreate extends Component {
 
                                     </label>
                                 </div>
-                                <h6 className='col-6 d-flex justify-content-evenly'>
-                                    <span className={`badge badge-secondary  ${data.Status ? "bg-success" : "bg-danger"} `}>
+                                <h6 className='col-6 d-flex justify-content-evenly align-items-center '>
+                                    <span className={`badge badge-secondary text-center p-1 mt-1  ${data.Status ? "bg-success" : "bg-danger"} `}>
                                         {data.Status ? "Completed" : "Incomplete"}
                                     </span>
-                                    <AiFillDelete role='button' className='fs-3   ' onClick={() => this.handleDelete(i)} />
-                                    <FaEdit role='button' className='fs-3   ' onClick={() => this.handleUpdate(i)} />
+                                    <AiFillDelete role='button' className='fs-3   ' onClick={() => this.handleDelete(data.id)} />
+                                    <FaEdit role='button' className='fs-3   ' onClick={() => this.handleUpdate(data.id)} />
                                 </h6>
                             </div>
                         );
-                    }):<div className='width-col border col-8 d-flex justify-content-center align-items-center p-3 border-dark bg-light text-dark  rounded bg-opacity-75  ' ><h1>No Data Found</h1></div>}
+                    }) : <div className='width-col border col-8 d-flex justify-content-center align-items-center p-3 border-dark bg-light text-dark  rounded bg-opacity-75  ' ><h1>No Data Found</h1></div>}
                 </div>
             </div>
         );
